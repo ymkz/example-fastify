@@ -1,0 +1,524 @@
+openapi: 3.0.3
+info:
+  title: title
+  description: description
+  version: 0.0.0
+components:
+  schemas: {}
+paths:
+  /todos:
+    post:
+      tags:
+        - todos
+      description: Todoの新規作成
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+              required:
+                - title
+              additionalProperties: false
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  title:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - progress
+                      - pending
+                      - done
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                    nullable: true
+                  deleted_at:
+                    type: string
+                    nullable: true
+                required:
+                  - id
+                  - title
+                  - status
+                  - created_at
+                  - updated_at
+                  - deleted_at
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+    get:
+      tags:
+        - todos
+      description: Todoの一覧取得
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - progress
+              - pending
+              - done
+            default: progress
+          in: query
+          name: status
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    title:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - progress
+                        - pending
+                        - done
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      nullable: true
+                  required:
+                    - id
+                    - title
+                    - status
+                    - created_at
+                    - updated_at
+                    - deleted_at
+                  additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+  "/todos/{id}":
+    delete:
+      tags:
+        - todos
+      description: Todoの削除
+      parameters:
+        - schema:
+            type: number
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                not: {}
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema: {}
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+    get:
+      tags:
+        - todos
+      description: Todoの取得
+      parameters:
+        - schema:
+            type: number
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  title:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - progress
+                      - pending
+                      - done
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                    nullable: true
+                  deleted_at:
+                    type: string
+                    nullable: true
+                required:
+                  - id
+                  - title
+                  - status
+                  - created_at
+                  - updated_at
+                  - deleted_at
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema: {}
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+    patch:
+      tags:
+        - todos
+      description: Todoの更新
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                status:
+                  type: string
+                  enum:
+                    - progress
+                    - pending
+                    - done
+              additionalProperties: false
+      parameters:
+        - schema:
+            type: number
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  title:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - progress
+                      - pending
+                      - done
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                    nullable: true
+                  deleted_at:
+                    type: string
+                    nullable: true
+                required:
+                  - id
+                  - title
+                  - status
+                  - created_at
+                  - updated_at
+                  - deleted_at
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema: {}
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+  /todos/search:
+    get:
+      tags:
+        - todos
+      description: Todoの検索
+      parameters:
+        - schema:
+            type: string
+            minLength: 1
+          in: query
+          name: title
+          required: false
+        - schema:
+            type: string
+            enum:
+              - progress
+              - pending
+              - done
+          in: query
+          name: status
+          required: false
+        - schema:
+            type: integer
+            exclusiveMinimum: true
+            minimum: 0
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          required: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    title:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - progress
+                        - pending
+                        - done
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      nullable: true
+                  required:
+                    - id
+                    - title
+                    - status
+                    - created_at
+                    - updated_at
+                    - deleted_at
+                  additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: array
+                required:
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                    additionalProperties: false
+                required:
+                  - error
+                additionalProperties: false
+servers:
+  - url: http://localhost:3000
+    description: ローカル環境
+  - url: http://localhost:3000
+    description: 開発環境
+  - url: http://localhost:3000
+    description: ステージング環境
+  - url: http://localhost:3000
+    description: 本番環境
