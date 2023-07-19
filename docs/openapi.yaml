@@ -209,7 +209,16 @@ paths:
           description: Default Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                additionalProperties: false
         "500":
           description: Default Response
           content:
@@ -291,7 +300,16 @@ paths:
           description: Default Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                additionalProperties: false
         "500":
           description: Default Response
           content:
@@ -389,7 +407,16 @@ paths:
           description: Default Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - code
+                additionalProperties: false
         "500":
           description: Default Response
           content:

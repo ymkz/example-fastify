@@ -11,7 +11,7 @@ import { todoId } from '~/routes/todos/id'
 import { todoList } from '~/routes/todos/list'
 import { todoSearch } from '~/routes/todos/search'
 import { todoUpdate } from '~/routes/todos/update'
-import { errorHandler } from '~/utils/error'
+import { errorHandler, notFoundHandler } from '~/utils/error'
 import { logger } from '~/utils/logger'
 
 export const register = async () => {
@@ -19,6 +19,7 @@ export const register = async () => {
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
+  app.setNotFoundHandler(notFoundHandler)
   app.setErrorHandler(errorHandler)
 
   await app.register(fastifyStatic, fastifyStaticOptions)

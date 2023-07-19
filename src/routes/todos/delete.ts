@@ -30,7 +30,10 @@ export const todoDelete: FastifyPluginAsync = async (app) => {
       const result = await todosMutation.deleteOne(request.params.id)
 
       if (!result) {
-        return reply.status(404).send()
+        return reply.status(404).send({
+          code: 'TODO_NOT_FOUND',
+          message: '対象のTodoが存在しません',
+        })
       }
 
       return reply.status(200).send()
