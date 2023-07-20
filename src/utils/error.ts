@@ -2,34 +2,67 @@ import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError, z } from 'zod'
 import { logger } from '~/utils/logger'
 
+export const ERROR_CODE_MESSAGE = {
+  UNEXPECTED_ERROR: '予期しないエラーが発生しました',
+  TODO_NOT_FOUND: '対象のTodoが存在しません',
+  TODO_ID_ERROR: 'Todoの単体取得時にエラーが発生しました',
+  TODO_LIST_ERROR: 'Todoの一覧取得時にエラーが発生しました',
+  TODO_SEARCH_ERROR: 'Todoの検索時にエラーが発生しました',
+  TODO_CREATE_ERROR: 'Todoの新規作成時にエラーが発生しました',
+  TODO_DELETE_ERROR: 'Todoの削除時にエラーが発生しました',
+  TODO_UPDATE_ERROR: 'Todoの更新時にエラーが発生しました',
+}
+
+export class AppError extends Error {
+  code: string
+
+  static {
+    this.prototype.name = 'AppError'
+  }
+
+  constructor(
+    code: keyof typeof ERROR_CODE_MESSAGE = 'UNEXPECTED_ERROR',
+    options?: ErrorOptions,
+  ) {
+    super(ERROR_CODE_MESSAGE[code], options)
+    this.code = code
+  }
+}
+
 export const errorHandler = (
   error: FastifyError,
-  _request: FastifyRequest,
+  _: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  // Zodによるリクエストのスキーマエラーの場合
+  // Zodによるリクエストスキーマのバリデーションエラーの場合
   if (error instanceof ZodError) {
     const payload = { error: error.issues }
     logger.warn(payload)
     return reply.status(400).send(payload)
   }
 
-  // それ以外のエラー処理
-  const payload = {
-    error: {
-      code: error.code ?? 'UNEXPECTED_ERROR',
-      message: error.message ?? '予期しないエラーが発生しました',
-    },
+  // アプリケーション側で定義したカスタムエラーの場合
+  if (error instanceof AppError) {
+    logger.error({ code: error.code, message: error.message })
+    return reply.status(500).send({ code: error.code, message: error.message })
   }
-  logger.error(payload)
-  return reply.status(error.statusCode ?? 500).send(payload)
+
+  // それ以外のエラー処理
+  logger.error({
+    code: error.code ?? 'UNEXPECTED_ERROR',
+    message: error.message ?? '予期しないエラーが発生しました',
+  })
+  return reply.status(error.statusCode ?? 500).send({
+    code: error.code ?? 'UNEXPECTED_ERROR',
+    message: error.message ?? '予期しないエラーが発生しました',
+  })
 }
 
 export const notFoundHandler = async (
-  _request: FastifyRequest,
+  _: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  return reply.status(404).send({ code: 'NOT_FOUND' })
+  return reply.status(404).send()
 }
 
 export const response400 = z.object({
@@ -38,12 +71,10 @@ export const response400 = z.object({
 
 export const response404 = z.object({
   code: z.string(),
-  message: z.string().optional(),
+  message: z.string(),
 })
 
 export const response500 = z.object({
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-  }),
+  code: z.string(),
+  message: z.string(),
 })

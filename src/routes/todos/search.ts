@@ -1,9 +1,10 @@
-import { FastifyPluginAsync } from 'fastify'
+import { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
+import { register } from '~/register'
 import { todosQuery } from '~/repositories/query'
 import { todosSchema } from '~/repositories/schema/todos'
-import { response400, response500 } from '~/utils/error'
+import { AppError, response400, response500 } from '~/utils/error'
 
 const requestQuery = z.object({
   title: z.string().nonempty().optional(),
@@ -28,14 +29,69 @@ export const todoSearch: FastifyPluginAsync = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const result = await todosQuery.findList({
-        title: request.query.title,
-        status: request.query.status,
-        limit: request.query.limit,
-        offset: request.query.offset,
-      })
+      const result = await todosQuery
+        .search({
+          title: request.query.title,
+          status: request.query.status,
+          limit: request.query.limit,
+          offset: request.query.offset,
+        })
+        .catch((cause) => {
+          throw new AppError('TODO_SEARCH_ERROR', { cause })
+        })
 
       return reply.send(result)
     },
   })
+}
+
+if (import.meta.vitest) {
+  const { test, expect, vi, beforeAll } = import.meta.vitest
+
+  let app: FastifyInstance
+
+  beforeAll(async () => {
+    app = await register()
+    await app.ready()
+  })
+
+  test('[GET /todos/search] 正常にレスポンスされること', async () => {
+    const mockSearch = vi.spyOn(todosQuery, 'search').mockResolvedValue([
+      {
+        id: 1,
+        title: '',
+        status: 'progress',
+        created_at: '',
+        updated_at: null,
+        deleted_at: null,
+      },
+    ])
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos/search',
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toStrictEqual(
+      JSON.stringify([
+        {
+          id: 1,
+          title: '',
+          status: 'progress',
+          created_at: '',
+          updated_at: null,
+          deleted_at: null,
+        },
+      ]),
+    )
+    expect(mockSearch).toHaveBeenCalledTimes(1)
+  })
+
+  test.todo(
+    '[GET /todos/search] 許可されていないクエリパラメータでのリクエストはバリデーションエラーになること',
+  )
+  test.todo(
+    '[GET /todos/search] 処理中に例外が発生した場合エラーがレスポンスされること',
+  )
 }

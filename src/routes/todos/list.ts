@@ -4,10 +4,10 @@ import { z } from 'zod'
 import { register } from '~/register'
 import { todosQuery } from '~/repositories/query'
 import { todosSchema } from '~/repositories/schema/todos'
-import { response400, response500 } from '~/utils/error'
+import { AppError, response400, response500 } from '~/utils/error'
 
 const requestQuery = z.object({
-  status: z.enum(['progress', 'pending', 'done']).default('progress'),
+  status: z.enum(['progress', 'pending', 'done']).optional(),
 })
 const response200 = todosSchema
 
@@ -26,9 +26,11 @@ export const todoList: FastifyPluginAsync = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const result = await todosQuery.findList({
-        status: request.query.status,
-      })
+      const result = await todosQuery
+        .findListByStatus(request.query.status)
+        .catch((cause) => {
+          throw new AppError('TODO_LIST_ERROR', { cause })
+        })
 
       return reply.send(result)
     },

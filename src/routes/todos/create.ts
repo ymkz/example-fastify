@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { register } from '~/register'
 import { todosMutation } from '~/repositories/mutation'
 import { todoSchema } from '~/repositories/schema/todos'
-import { response400, response500 } from '~/utils/error'
+import { AppError, response400, response500 } from '~/utils/error'
 
 const requestBody = z.object({
   title: z.string().nonempty(),
@@ -26,15 +26,13 @@ export const todoCreate: FastifyPluginAsync = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      try {
-        const result = await todosMutation.createOne({
-          title: request.body.title,
+      const result = await todosMutation
+        .createOne(request.body.title)
+        .catch((cause) => {
+          throw new AppError('TODO_CREATE_ERROR', { cause })
         })
 
-        return reply.send(result)
-      } catch (cause) {
-        throw new Error('Todoの新規作成でエラーが発生しました', { cause })
-      }
+      return reply.send(result)
     },
   })
 }
@@ -127,10 +125,8 @@ if (import.meta.vitest) {
     expect(response.statusCode).toBe(500)
     expect(response.body).toBe(
       JSON.stringify({
-        error: {
-          code: 'UNEXPECTED_ERROR',
-          message: 'Todoの新規作成でエラーが発生しました',
-        },
+        code: 'TODO_CREATE_ERROR',
+        message: 'Todoの新規作成時にエラーが発生しました',
       }),
     )
     expect(mockCreateOne).toHaveBeenCalledTimes(1)

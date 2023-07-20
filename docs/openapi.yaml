@@ -77,19 +77,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
     get:
       tags:
@@ -102,7 +96,6 @@ paths:
               - progress
               - pending
               - done
-            default: progress
           in: query
           name: status
           required: false
@@ -161,19 +154,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
   "/todos/{id}":
     delete:
@@ -218,6 +205,7 @@ paths:
                     type: string
                 required:
                   - code
+                  - message
                 additionalProperties: false
         "500":
           description: Default Response
@@ -226,19 +214,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
     get:
       tags:
@@ -309,6 +291,7 @@ paths:
                     type: string
                 required:
                   - code
+                  - message
                 additionalProperties: false
         "500":
           description: Default Response
@@ -317,19 +300,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
     patch:
       tags:
@@ -416,6 +393,7 @@ paths:
                     type: string
                 required:
                   - code
+                  - message
                 additionalProperties: false
         "500":
           description: Default Response
@@ -424,19 +402,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
   /todos/search:
     get:
@@ -526,19 +498,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                    additionalProperties: false
+                  code:
+                    type: string
+                  message:
+                    type: string
                 required:
-                  - error
+                  - code
+                  - message
                 additionalProperties: false
 servers:
   - url: http://localhost:3000
