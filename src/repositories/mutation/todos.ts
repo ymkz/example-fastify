@@ -15,7 +15,7 @@ export const createOne = async (title: Todo['title']) => {
 /**
  * @description 論理削除
  */
-export const deleteOne = async (id: number) => {
+export const deleteOne = async (id: Todo['id']) => {
   await db
     .updateTable('todos')
     .set({ deleted_at: sql`DATETIME('now', 'localtime')` })
