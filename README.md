@@ -1,4 +1,4 @@
-# base-fastify
+# example-fastify
 
 fastifyでサーバーをREST APIとして実装するサンプル
 
