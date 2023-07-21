@@ -28,7 +28,7 @@ export const todoDelete: FastifyPluginAsync = async (app) => {
     },
     handler: async (request, reply) => {
       await todosQuery.findOneById(request.params.id).catch((cause) => {
-        throw new AppError('TODO_NOT_FOUND', { cause })
+        throw new AppError('TODO_NOT_FOUND', { cause, statusCode: 404 })
       })
 
       await todosMutation.deleteOne(request.params.id).catch((cause) => {

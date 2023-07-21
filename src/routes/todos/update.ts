@@ -34,7 +34,7 @@ export const todoUpdate: FastifyPluginAsync = async (app) => {
     },
     handler: async (request, reply) => {
       await todosQuery.findOneById(request.params.id).catch((cause) => {
-        throw new AppError('TODO_NOT_FOUND', { cause })
+        throw new AppError('TODO_NOT_FOUND', { cause, statusCode: 404 })
       })
 
       const result = await todosMutation

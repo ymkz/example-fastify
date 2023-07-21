@@ -2,7 +2,7 @@ import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError, z } from 'zod'
 import { logger } from '~/utils/logger'
 
-export const ERROR_CODE_MESSAGE = {
+const ERROR_CODE_MESSAGE = {
   UNEXPECTED_ERROR: '予期しないエラーが発生しました',
   TODO_NOT_FOUND: '対象のTodoが存在しません',
   TODO_ID_ERROR: 'Todoの単体取得時にエラーが発生しました',
@@ -14,18 +14,20 @@ export const ERROR_CODE_MESSAGE = {
 }
 
 export class AppError extends Error {
-  code: string
+  errorCode: string
+  statusCode: number
 
   static {
     this.prototype.name = 'AppError'
   }
 
   constructor(
-    code: keyof typeof ERROR_CODE_MESSAGE = 'UNEXPECTED_ERROR',
-    options?: ErrorOptions,
+    errorCode: keyof typeof ERROR_CODE_MESSAGE = 'UNEXPECTED_ERROR',
+    { statusCode, ...options }: ErrorOptions & { statusCode?: number },
   ) {
-    super(ERROR_CODE_MESSAGE[code], options)
-    this.code = code
+    super(ERROR_CODE_MESSAGE[errorCode], options)
+    this.errorCode = errorCode
+    this.statusCode = statusCode ?? 500
   }
 }
 
@@ -36,22 +38,20 @@ export const errorHandler = (
 ) => {
   // Zodによるリクエストスキーマのバリデーションエラーの場合
   if (error instanceof ZodError) {
-    const payload = { error: error.issues }
-    logger.warn(payload)
-    return reply.status(400).send(payload)
+    logger.warn(error)
+    return reply.status(400).send(error.issues)
   }
 
   // アプリケーション側で定義したカスタムエラーの場合
   if (error instanceof AppError) {
-    logger.error({ code: error.code, message: error.message })
-    return reply.status(500).send({ code: error.code, message: error.message })
+    logger.error(error)
+    return reply
+      .status(error.statusCode)
+      .send({ code: error.errorCode, message: error.message })
   }
 
   // それ以外のエラー処理
-  logger.error({
-    code: error.code ?? 'UNEXPECTED_ERROR',
-    message: error.message ?? '予期しないエラーが発生しました',
-  })
+  logger.error(error, ERROR_CODE_MESSAGE['UNEXPECTED_ERROR'])
   return reply.status(error.statusCode ?? 500).send({
     code: error.code ?? 'UNEXPECTED_ERROR',
     message: error.message ?? '予期しないエラーが発生しました',
@@ -65,9 +65,7 @@ export const notFoundHandler = async (
   return reply.status(404).send()
 }
 
-export const response400 = z.object({
-  error: z.array(z.any()),
-})
+export const response400 = z.array(z.any())
 
 export const response404 = z.object({
   code: z.string(),

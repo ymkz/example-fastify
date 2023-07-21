@@ -63,13 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "500":
           description: Default Response
           content:
@@ -140,13 +134,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "500":
           description: Default Response
           content:
@@ -185,13 +173,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "404":
           description: Default Response
           content:
@@ -271,13 +253,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "404":
           description: Default Response
           content:
@@ -373,13 +349,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "404":
           description: Default Response
           content:
@@ -484,13 +454,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: array
-                required:
-                  - error
-                additionalProperties: false
+                type: array
         "500":
           description: Default Response
           content:
