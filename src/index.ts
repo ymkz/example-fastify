@@ -1,8 +1,9 @@
+import '~/utils/env'
+
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 import { register } from '~/register'
-import '~/utils/env'
 import { logger } from '~/utils/logger'
 
 register()
