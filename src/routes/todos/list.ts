@@ -1,10 +1,12 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
+
 import { register } from '~/register'
 import { todosQuery } from '~/repositories/query'
 import { todosSchema } from '~/repositories/schema/todos'
 import { AppError, response400, response500 } from '~/utils/error'
+
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 const requestQuery = z.object({
   status: z.enum(['progress', 'pending', 'done']).optional(),
@@ -38,7 +40,7 @@ export const todoList: FastifyPluginAsync = async (app) => {
 }
 
 if (import.meta.vitest) {
-  const { test, expect, beforeAll } = import.meta.vitest
+  const { beforeAll, expect, test } = import.meta.vitest
 
   let app: FastifyInstance
 

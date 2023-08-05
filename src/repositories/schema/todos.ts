@@ -1,5 +1,6 @@
-import { Generated } from 'kysely'
 import { z } from 'zod'
+
+import type { Generated } from 'kysely'
 
 export type TodosTable = {
   id: Generated<number>

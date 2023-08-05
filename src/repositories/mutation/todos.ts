@@ -1,6 +1,7 @@
 import { sql } from 'kysely'
+
 import { db } from '~/repositories'
-import { Todo } from '~/repositories/schema/todos'
+import type { Todo } from '~/repositories/schema/todos'
 
 export const createOne = async (title: Todo['title']) => {
   const result = await db

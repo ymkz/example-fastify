@@ -1,5 +1,5 @@
 import { db } from '~/repositories'
-import { Todo } from '~/repositories/schema/todos'
+import type { Todo } from '~/repositories/schema/todos'
 
 export const findListByStatus = async (status: Todo['status'] = 'progress') => {
   const result = await db
@@ -27,10 +27,10 @@ export const findOneById = async (id: Todo['id']) => {
 
 // TODO: 期間の絞り込みを実装する
 export const search = async ({
-  title,
-  status,
   limit = 10,
   offset = 0,
+  status,
+  title,
 }: {
   title?: Todo['title']
   status?: Todo['status']

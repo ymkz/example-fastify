@@ -5,7 +5,7 @@
     "build": "tsup",
     "start": "node dist/index.mjs",
     "lint": "tsc --noEmit && prettier --check . && eslint .",
-    "format": "prettier --write . && eslint . --fix",
+    "lint:fix": "prettier --write . && eslint . --fix",
     "test": "dotenv -e .env.test vitest run"
   },
   "dependencies": {
@@ -29,6 +29,9 @@
     "esbuild-plugin-alias-path": "2.0.2",
     "eslint": "8.45.0",
     "eslint-config-prettier": "8.8.0",
+    "eslint-import-resolver-typescript": "3.5.5",
+    "eslint-plugin-import": "2.28.0",
+    "eslint-plugin-sort-destructure-keys": "1.5.0",
     "prettier": "3.0.0",
     "tsup": "7.1.0",
     "typescript": "5.1.6",

@@ -1,11 +1,13 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
+
 import { register } from '~/register'
 import { todosMutation } from '~/repositories/mutation'
 import { todosQuery } from '~/repositories/query'
 import { todoSchema } from '~/repositories/schema/todos'
 import { AppError, response400, response404, response500 } from '~/utils/error'
+
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 const requestPathParam = z.object({
   id: z.coerce.number(),
@@ -49,7 +51,7 @@ export const todoUpdate: FastifyPluginAsync = async (app) => {
 }
 
 if (import.meta.vitest) {
-  const { test, expect, vi, beforeAll } = import.meta.vitest
+  const { beforeAll, expect, test, vi } = import.meta.vitest
 
   let app: FastifyInstance
 

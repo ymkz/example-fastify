@@ -5,8 +5,11 @@
  * @see https://www.jacobparis.com/content/type-safe-env
  */
 
-import { TypeOf, z } from 'zod'
+import { z } from 'zod'
+
 import { logger } from '~/utils/logger'
+
+import type { TypeOf } from 'zod'
 
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']),

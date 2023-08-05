@@ -1,6 +1,8 @@
-import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError, z } from 'zod'
+
 import { logger } from '~/utils/logger'
+
+import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 
 const ERROR_CODE_MESSAGE = {
   UNEXPECTED_ERROR: '予期しないエラーが発生しました',

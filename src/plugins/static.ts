@@ -1,5 +1,6 @@
-import { FastifyStaticOptions } from '@fastify/static'
 import { resolve } from 'node:path'
+
+import type { FastifyStaticOptions } from '@fastify/static'
 
 export { fastifyStatic } from '@fastify/static'
 

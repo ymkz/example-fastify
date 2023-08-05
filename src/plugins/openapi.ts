@@ -1,5 +1,6 @@
-import { FastifyDynamicSwaggerOptions } from '@fastify/swagger'
 import { jsonSchemaTransform } from 'fastify-type-provider-zod'
+
+import type { FastifyDynamicSwaggerOptions } from '@fastify/swagger'
 
 export { fastifySwagger } from '@fastify/swagger'
 

@@ -3,6 +3,7 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+
 import { fastifySwagger, fastifySwaggerOptions } from '~/plugins/openapi'
 import { fastifyStatic, fastifyStaticOptions } from '~/plugins/static'
 import { todoCreate } from '~/routes/todos/create'
