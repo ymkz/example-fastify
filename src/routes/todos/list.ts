@@ -40,7 +40,7 @@ export const todoList: FastifyPluginAsync = async (app) => {
 }
 
 if (import.meta.vitest) {
-  const { beforeAll, expect, test } = import.meta.vitest
+  const { beforeAll, expect, test, vi } = import.meta.vitest
 
   let app: FastifyInstance
 
@@ -56,5 +56,35 @@ if (import.meta.vitest) {
     })
 
     expect(response.statusCode).toBe(200)
+  })
+
+  test('[GET /todos] クエリパラメータが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos?status=error',
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test('[GET /todos] DB操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+    const mockFindListByStatus = vi
+      .spyOn(todosQuery, 'findListByStatus')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos',
+    })
+
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toBe(
+      JSON.stringify({
+        code: 'TODO_LIST_ERROR',
+        message: 'Todoの一覧取得時にエラーが発生しました',
+      }),
+    )
+    expect(mockFindListByStatus).toHaveBeenCalledTimes(1)
   })
 }

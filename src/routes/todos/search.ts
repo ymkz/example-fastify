@@ -90,10 +90,31 @@ if (import.meta.vitest) {
     expect(mockSearch).toHaveBeenCalledTimes(1)
   })
 
-  test.todo(
-    '[GET /todos/search] 許可されていないクエリパラメータでのリクエストはバリデーションエラーになること',
-  )
-  test.todo(
-    '[GET /todos/search] 処理中に例外が発生した場合エラーがレスポンスされること',
-  )
+  test('[GET /todos/search] クエリパラメータが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos/search?status=error',
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test('[GET /todos/search] DB操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+    const mockSearch = vi.spyOn(todosQuery, 'search').mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos/search',
+    })
+
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toBe(
+      JSON.stringify({
+        code: 'TODO_SEARCH_ERROR',
+        message: 'Todoの検索時にエラーが発生しました',
+      }),
+    )
+    expect(mockSearch).toHaveBeenCalledTimes(1)
+  })
 }

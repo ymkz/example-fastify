@@ -78,10 +78,55 @@ if (import.meta.vitest) {
     expect(mockDeleteOne).toHaveBeenCalledTimes(1)
   })
 
-  test.todo(
-    '[DELETE /todos/:id] パスパラメータで指定したIDのTodoが存在しない場合エラーがレスポンスされること',
-  )
-  test.todo(
-    '[DELETE /todos/:id] 処理中に例外が発生した場合エラーがレスポンスされること',
-  )
+  test('[GET /todos/:id] リクエストパスが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'DELETE',
+      url: '/todos/error',
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test('[DELETE /todos/:id] リクエストパスで指定したIDのTodoが存在しない場合、404エラーがレスポンスされること', async () => {
+    const mockFindOneById = vi
+      .spyOn(todosQuery, 'findOneById')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'DELETE',
+      url: '/todos/1',
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.body).toStrictEqual(
+      JSON.stringify({
+        code: 'TODO_NOT_FOUND',
+        message: '対象のTodoが存在しません',
+      }),
+    )
+    expect(mockFindOneById).toHaveBeenCalledTimes(1)
+  })
+
+  test('[DELETE /todos/:id] DELETE操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+    const mockFindOneById = vi.spyOn(todosQuery, 'findOneById')
+    const mockDeleteOne = vi
+      .spyOn(todosMutation, 'deleteOne')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'DELETE',
+      url: '/todos/1',
+    })
+
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toBe(
+      JSON.stringify({
+        code: 'TODO_DELETE_ERROR',
+        message: 'Todoの削除時にエラーが発生しました',
+      }),
+    )
+    expect(mockFindOneById).toHaveBeenCalledTimes(1)
+    expect(mockDeleteOne).toHaveBeenCalledTimes(1)
+  })
 }

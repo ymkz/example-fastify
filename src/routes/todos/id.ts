@@ -73,7 +73,7 @@ if (import.meta.vitest) {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(response.body).toStrictEqual(
+    expect(response.body).toBe(
       JSON.stringify({
         id: 1,
         title: '',
@@ -86,32 +86,47 @@ if (import.meta.vitest) {
     expect(mockFindOneById).toHaveBeenCalledTimes(1)
   })
 
-  test('[GET /todos/:id] 処理中に例外が発生した場合エラーがレスポンスされること', async () => {
+  test('[GET /todos/:id] リクエストパスが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/todos/error',
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test.todo(
+    '[GET /todos/:id] リクエストパスで指定したIDのTodoが存在しない場合、404エラーがレスポンスされること',
+    async () => {
+      // const mockFindOneById = vi
+      //   .spyOn(todosQuery, 'findOneById')
+      //   .mockRejectedValue(new NoResultError({})) // TODO: ここどうすれば
+      // const response = await app.inject({
+      //   method: 'GET',
+      //   url: '/todos/1',
+      // })
+      // expect(response.statusCode).toBe(404)
+      // expect(response.body).toStrictEqual(JSON.stringify({}))
+      // expect(mockFindOneById).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  test('[GET /todos/:id] DB操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
     const mockFindOneById = vi
       .spyOn(todosQuery, 'findOneById')
-      .mockResolvedValue({
-        id: 1,
-        title: '',
-        status: 'progress',
-        created_at: '',
-        updated_at: null,
-        deleted_at: null,
-      })
+      .mockRejectedValue('error')
 
     const response = await app.inject({
       method: 'GET',
       url: '/todos/1',
     })
 
-    expect(response.statusCode).toBe(200)
-    expect(response.body).toStrictEqual(
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toBe(
       JSON.stringify({
-        id: 1,
-        title: '',
-        status: 'progress',
-        created_at: '',
-        updated_at: null,
-        deleted_at: null,
+        code: 'TODO_ID_ERROR',
+        message: 'Todoの単体取得時にエラーが発生しました',
       }),
     )
     expect(mockFindOneById).toHaveBeenCalledTimes(1)

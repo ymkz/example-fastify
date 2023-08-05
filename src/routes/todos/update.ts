@@ -61,16 +61,7 @@ if (import.meta.vitest) {
   })
 
   test('[PATCH /todos/:id] 正常にレスポンスされること', async () => {
-    const mockFindOneById = vi
-      .spyOn(todosQuery, 'findOneById')
-      .mockResolvedValue({
-        id: 1,
-        title: '',
-        status: 'progress',
-        created_at: '',
-        updated_at: null,
-        deleted_at: null,
-      })
+    const mockFindOneById = vi.spyOn(todosQuery, 'findOneById')
     const mockUpdateOne = vi
       .spyOn(todosMutation, 'updateOne')
       .mockResolvedValue({
@@ -99,6 +90,77 @@ if (import.meta.vitest) {
         created_at: '',
         updated_at: null,
         deleted_at: null,
+      }),
+    )
+    expect(mockFindOneById).toHaveBeenCalledTimes(1)
+    expect(mockUpdateOne).toHaveBeenCalledTimes(1)
+  })
+
+  test('[PATCH /todos/:id] リクエストパスが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/todos/error',
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test('[PATCH /todos/:id] リクエストボディが不正な場合、400エラーがレスポンスされること', async () => {
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/todos/1',
+      body: {
+        title: '',
+      },
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
+  })
+
+  test('[PATCH /todos/:id] リクエストパスで指定したIDのTodoが存在しない場合、404エラーがレスポンスされること', async () => {
+    const mockFindOneById = vi
+      .spyOn(todosQuery, 'findOneById')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/todos/1',
+      body: {
+        title: 'title_updated',
+      },
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.body).toStrictEqual(
+      JSON.stringify({
+        code: 'TODO_NOT_FOUND',
+        message: '対象のTodoが存在しません',
+      }),
+    )
+    expect(mockFindOneById).toHaveBeenCalledTimes(1)
+  })
+
+  test('[PATCH /todos/:id] UPDATE操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+    const mockFindOneById = vi.spyOn(todosQuery, 'findOneById')
+    const mockUpdateOne = vi
+      .spyOn(todosMutation, 'updateOne')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/todos/1',
+      body: {
+        title: 'title_updated',
+      },
+    })
+
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toStrictEqual(
+      JSON.stringify({
+        code: 'TODO_UPDATE_ERROR',
+        message: 'Todoの更新時にエラーが発生しました',
       }),
     )
     expect(mockFindOneById).toHaveBeenCalledTimes(1)
