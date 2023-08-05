@@ -13,7 +13,7 @@ const requestBody = z.object({
 })
 const response200 = todoSchema
 
-export const todoCreate: FastifyPluginAsync = async (app) => {
+export const todoCreateHandler: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/todos',

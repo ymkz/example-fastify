@@ -16,7 +16,7 @@ const requestQuery = z.object({
 })
 const response200 = todosSchema
 
-export const todoSearch: FastifyPluginAsync = async (app) => {
+export const todoSearchHandler: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/todos/search',

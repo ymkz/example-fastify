@@ -1,9 +1,8 @@
-import { NoResultError } from 'kysely'
 import { z } from 'zod'
 
 import { register } from '~/register'
+import { todosMutation } from '~/repositories/mutation'
 import { todosQuery } from '~/repositories/query'
-import { todoSchema } from '~/repositories/schema/todos'
 import { AppError, response400, response404, response500 } from '~/utils/error'
 
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
@@ -12,14 +11,14 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 const requestPathParam = z.object({
   id: z.coerce.number(),
 })
-const response200 = todoSchema
+const response200 = z.never()
 
-export const todoId: FastifyPluginAsync = async (app) => {
+export const todoDeleteHandler: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'GET',
+    method: 'DELETE',
     url: '/todos/:id',
     schema: {
-      description: 'Todoの取得',
+      description: 'Todoの削除',
       tags: ['todos'],
       params: requestPathParam,
       response: {
@@ -30,17 +29,15 @@ export const todoId: FastifyPluginAsync = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const result = await todosQuery
-        .findOneById(request.params.id)
-        .catch((cause) => {
-          if (cause instanceof NoResultError) {
-            throw new AppError('TODO_NOT_FOUND', { cause, statusCode: 404 })
-          } else {
-            throw new AppError('TODO_ID_ERROR', { cause })
-          }
-        })
+      await todosQuery.findOneById(request.params.id).catch((cause) => {
+        throw new AppError('TODO_NOT_FOUND', { cause, statusCode: 404 })
+      })
 
-      return reply.send(result)
+      await todosMutation.deleteOne(request.params.id).catch((cause) => {
+        throw new AppError('TODO_DELETE_ERROR', { cause })
+      })
+
+      return reply.send()
     },
   })
 }
@@ -55,7 +52,7 @@ if (import.meta.vitest) {
     await app.ready()
   })
 
-  test('[GET /todos/:id] 正常にレスポンスされること', async () => {
+  test('[DELETE /todos/:id] 正常にレスポンスされること', async () => {
     const mockFindOneById = vi
       .spyOn(todosQuery, 'findOneById')
       .mockResolvedValue({
@@ -66,29 +63,24 @@ if (import.meta.vitest) {
         updated_at: null,
         deleted_at: null,
       })
+    const mockDeleteOne = vi
+      .spyOn(todosMutation, 'deleteOne')
+      .mockResolvedValue()
 
     const response = await app.inject({
-      method: 'GET',
+      method: 'DELETE',
       url: '/todos/1',
     })
 
     expect(response.statusCode).toBe(200)
-    expect(response.body).toBe(
-      JSON.stringify({
-        id: 1,
-        title: '',
-        status: 'progress',
-        created_at: '',
-        updated_at: null,
-        deleted_at: null,
-      }),
-    )
+    expect(response.body).toBe('')
     expect(mockFindOneById).toHaveBeenCalledTimes(1)
+    expect(mockDeleteOne).toHaveBeenCalledTimes(1)
   })
 
   test('[GET /todos/:id] リクエストパスが不正な場合、400エラーがレスポンスされること', async () => {
     const response = await app.inject({
-      method: 'GET',
+      method: 'DELETE',
       url: '/todos/error',
     })
 
@@ -96,39 +88,45 @@ if (import.meta.vitest) {
     expect(JSON.parse(response.body)).toHaveLength(1) // Zodのエラーオブジェクトの配列
   })
 
-  test.todo(
-    '[GET /todos/:id] リクエストパスで指定したIDのTodoが存在しない場合、404エラーがレスポンスされること',
-    async () => {
-      // const mockFindOneById = vi
-      //   .spyOn(todosQuery, 'findOneById')
-      //   .mockRejectedValue(new NoResultError({})) // TODO: ここどうすれば
-      // const response = await app.inject({
-      //   method: 'GET',
-      //   url: '/todos/1',
-      // })
-      // expect(response.statusCode).toBe(404)
-      // expect(response.body).toStrictEqual(JSON.stringify({}))
-      // expect(mockFindOneById).toHaveBeenCalledTimes(1)
-    },
-  )
-
-  test('[GET /todos/:id] DB操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+  test('[DELETE /todos/:id] リクエストパスで指定したIDのTodoが存在しない場合、404エラーがレスポンスされること', async () => {
     const mockFindOneById = vi
       .spyOn(todosQuery, 'findOneById')
       .mockRejectedValue('error')
 
     const response = await app.inject({
-      method: 'GET',
+      method: 'DELETE',
+      url: '/todos/1',
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.body).toStrictEqual(
+      JSON.stringify({
+        code: 'TODO_NOT_FOUND',
+        message: '対象のTodoが存在しません',
+      }),
+    )
+    expect(mockFindOneById).toHaveBeenCalledTimes(1)
+  })
+
+  test('[DELETE /todos/:id] DELETE操作時に例外が発生した場合、500エラーがレスポンスされること', async () => {
+    const mockFindOneById = vi.spyOn(todosQuery, 'findOneById')
+    const mockDeleteOne = vi
+      .spyOn(todosMutation, 'deleteOne')
+      .mockRejectedValue('error')
+
+    const response = await app.inject({
+      method: 'DELETE',
       url: '/todos/1',
     })
 
     expect(response.statusCode).toBe(500)
     expect(response.body).toBe(
       JSON.stringify({
-        code: 'TODO_ID_ERROR',
-        message: 'Todoの単体取得時にエラーが発生しました',
+        code: 'TODO_DELETE_ERROR',
+        message: 'Todoの削除時にエラーが発生しました',
       }),
     )
     expect(mockFindOneById).toHaveBeenCalledTimes(1)
+    expect(mockDeleteOne).toHaveBeenCalledTimes(1)
   })
 }

@@ -13,7 +13,7 @@ const requestQuery = z.object({
 })
 const response200 = todosSchema
 
-export const todoList: FastifyPluginAsync = async (app) => {
+export const todoListHandler: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/todos',
